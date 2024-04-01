@@ -34,7 +34,7 @@ if args.i:
         crop = process(crop)
 
         cv2.imwrite('temp/crop' + str(i) + '.jpg', crop)
-        recognise('temp/crop' + str(i) + '.jpg', 'temp/crop'+str(i))
+        recognise('temp/crop' + str(i) + '.jpg', 'temp/crop'+str(i) + '.txt')
         post_process('temp/crop' + str(i) + '.txt')
         i += 1
     cv2.imwrite('temp/detection.jpg', detection)

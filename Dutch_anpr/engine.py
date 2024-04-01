@@ -2,6 +2,7 @@ import cv2
 import numpy as np
 import os
 import pathlib
+import pytesseract
 
 
 def order_points(pts):
@@ -108,6 +109,7 @@ def detect(img_rgb):
     img = img_rgb.copy()
     input_height = img_rgb.shape[0]
     input_width = img_rgb.shape[1]
+    # print()
     hsv_frame = cv2.cvtColor(img_rgb, cv2.COLOR_BGR2HSV)
 
     # yellow color
@@ -123,7 +125,8 @@ def detect(img_rgb):
 
     cv2.imwrite("temp/steps/2_closing_morphology.png", closing)
     # Detect yellow area
-    contours, hierarchy = cv2.findContours(closing, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+    # contours, hierarchy = cv2.findContours(closing, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+    contours, hierarchy = cv2.findContours(yellow, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 
     # List of final crops
     crops = []
@@ -152,7 +155,8 @@ def detect(img_rgb):
                 bleu_summation = 0
 
             # Condition on bleu color density at the left of the crop
-            if bleu_summation > 550:
+            # if bleu_summation > 550:
+            if bleu_summation >= 0:
 
                 # Compute yellow color density in the crop
                 # Make a crop from the RGB image
@@ -308,10 +312,20 @@ def post_process(input_file_path):
     return text
 
 
-def recognise(src_path, out_path):
+# def recognise(src_path, out_path):
+#
+#     # Tesseract command for recognition
+#     cmd = str(pathlib.Path().absolute()) + '/extra/tesseract.exe '+ src_path + ' ' + out_path + ' -l eng --psm 6 --dpi 300 --oem 1'
+#     os.system(cmd)
+#
+#     return 0
 
-    # Tesseract command for recognition
-    cmd = str(pathlib.Path().absolute()) + '/extra/tesseract.exe '+ src_path + ' ' + out_path + ' -l eng --psm 6 --dpi 300 --oem 1'
-    os.system(cmd)
+
+def recognise(src_path, out_path):
+    # custom_config = r'-l eng --psm 6 --dpi 300 --oem 1'
+    custom_config = r'-l eng --psm 9 --dpi 300 --oem 1'
+    text = pytesseract.image_to_string(src_path, config=custom_config)
+    with open(out_path, mode='w') as f:
+        f.write(text)
 
     return 0
